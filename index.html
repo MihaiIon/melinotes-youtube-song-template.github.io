@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melinotes | Recital Youtube</title>
+  <!-- Libs -->
+  <script src="libs/papaparse.min.js"></script>
+  <script src="libs/tailswind.min.js"></script>
+
+  <!-- Styles -->
+  <style>
+    li > b {
+      color: #6B46C1;
+    }
+  </style>
+  
+  <!-- Logic to import CSV -->
+  <script>
+    function handleFileImport(event) {
+      const fileInput = document.getElementById('file');
+      const tableBody = document.getElementById('results');
+
+      const file = fileInput.files[0];
+      if (file.type !== 'text/csv') {
+        alert('Le fichier doit être un fichier CSV.');
+        return;
+      }
+
+      Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+          tableBody.innerHTML = '';
+
+          const filteredResults = filterResults(results);
+          const mappedResults = mapResults(filteredResults);
+
+          renderResults(mappedResults);
+        }
+      });
+    }
+
+    /**
+     * Filter the results to only keep the rows that have an empty 'Lien Youtube' field.
+     * and those that are not completed.
+     */
+    function filterResults(results) {
+      return results.data
+                    .filter(row => row['Lien Youtube'].trim() === '')
+                    .filter(row => row['Complété'] === 'Yes');
+    }
+
+    function mapResults(results) {
+      return results.map(row => {
+        return {
+          'nom': row['Nom élève'],
+          'titre': row['Titre pièce'],
+          'arrangeur': row['Arrangeur'],
+          'compositeur': row['Compositeur'],
+        };
+      });
+    }
+
+    function renderResults(results) {
+      const tableBody = document.getElementById('results');
+      results.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b dark:border-slate-600';
+
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
+        const td3 = document.createElement('td');
+        [td1, td2, td3].forEach(td => {
+          td.className = 'py-4 px-4';
+        });
+
+        td1.textContent = row['nom'] + " / " + row['titre'];
+        td2.textContent = row['arrangeur'];
+        td3.textContent = row['compositeur'];
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        tableBody.appendChild(tr);
+      });
+    }
+  </script>
+</head>
+<body class="bg-slate-50">
+  <main class="container w-2/3 flex flex-col mx-auto pt-24 pb-10">
+    <h1 class="text-6xl text-purple-900 pb-8">Comment ça marche</h1>
+    <ul class="list-disc text-xl text-slate-700 ml-7">
+      <li>Dans <b>Notion</b>, cliquer sur le menu <b>[...]</b> en haut à droite de la page.</li>
+      <li>Choisir <b>Exporter</b>.</li>
+      <li>Choisir <b>CSV</b>.</li>
+      <li>Enregistrer le fichier sur votre ordinateur.</li>
+      <li>À l'aide du formulaire ci-bas, sélectionner le fichier <b>CVS</b>.</li>
+      <li>Cliquer sur le bouton <b>Importer</b>.</li>
+    </ul>
+    <hr class="mt-8" />
+    <div class="my-8">
+      <label for="file" class="block text-md text-purple-900 font-bold mb-2">Fichier CSV</label>
+      <input type="file" id="file" class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+      <label for="youtube--title-format" class="block text-md text-purple-900 font-bold mt-4 mb-2">Format Titre YouTube</label>
+      <input 
+        id="youtube--title-format"
+        type="text"
+        class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        value="&ldquo;{titre}&rdquo; interprété par {nom}"
+      >
+      <label for="youtube--description-format" class="block text-md text-purple-900 font-bold mt-4 mb-2">Format Description YouTube</label>
+      <textarea id="youtube--description-format" rows="8" class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+🎹 Musicien(s): {nom}
+🎼 Titre de la pièce de musique interprétée: {titre}
+🎻 Compositeur: {compositeur}
+📝 Arrangeur: {arrangeur}
+🏠 École: {école}
+📅 Date de l'enregistrement: {date}
+
+Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et à commenter pour partager vos réactions 😊
+      </textarea>
+      <label class="block text-md text-slate-500 font-bold mt-4 mb-2">Légende</label>
+      <button class="mt-4 transition bg-purple-900 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="handleFileImport()">Importer</button>
+    </div>
+
+    <h1 class="text-6xl text-purple-900 py-8">Données</h1>
+    <table class="table-fixed text-left border dark:border-slate-600">
+      <thead>
+        <tr class="border-b dark:border-slate-600">
+          <th class="w-1/3 py-4 px-4">Élève / Pièce</th>
+          <th class="w-1/3 py-4 px-4">Titre YouTube</th>
+          <th class="w-1/3 py-4 px-4">Description YouTube</th>
+        </tr>
+      </thead>
+      <tbody id="results">
+        <!-- Results will be displayed here -->
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
