@@ -35,34 +35,62 @@
           const filteredResults = filterResults(results);
           const mappedResults = mapResults(filteredResults);
 
+          console.log(results);
+
           renderResults(mappedResults);
         }
       });
     }
 
     /**
-     * Filter the results to only keep the rows that have an empty 'Lien Youtube' field.
-     * and those that are not completed.
+     * Filter the results to keep only the rows that are relevant.
+     * The rows must have the following conditions:
+     * - 'Lien Youtube' is empty
+     * - 'Complété' is 'Yes'
+     * - 'Nom fichier vidéo' is not empty
      */
     function filterResults(results) {
       return results.data
                     .filter(row => row['Lien Youtube'].trim() === '')
-                    .filter(row => row['Complété'] === 'Yes');
+                    .filter(row => row['Complété'] === 'Yes')
+                    .filter(row => row['Nom fichier vidéo'] !== '');
     }
 
+    /**
+     * Map the results to a new format.
+     */
     function mapResults(results) {
       return results.map(row => {
         return {
           'nom': row['Nom élève'],
           'titre': row['Titre pièce'],
-          'arrangeur': row['Arrangeur'],
-          'compositeur': row['Compositeur'],
+          'arrangeur': row['Arrangeur'] || 'N/A',
+          'compositeur': row['Compositeur'] || 'N/A',
+          'date': extractFrenchDateFromVideoTitle(row['Nom fichier vidéo'])
         };
       });
     }
 
+    /**
+     * Extract the French date from the video title.
+     * The date is expected to be in the format 'Le dd MMMM, YYYY'.
+     * The video title is expected to be in the format '2024-06-10 17-00-33.mp4'.
+     */
+    function extractFrenchDateFromVideoTitle(title) {
+      const date = title.split('.')[0];
+      const [year, month, day] = date.split('-').map(part => parseInt(part));
+      const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+      return `Le ${day} ${months[month - 1]}, ${year}`;
+    }
+
+    /**
+     * Render the results in the table.
+     */
     function renderResults(results) {
       const tableBody = document.getElementById('results');
+      const youtubeTitleFormat = document.getElementById('youtube--title-format').value;
+      const youtubeDescriptionFormat = document.getElementById('youtube--description-format').value;
+
       results.forEach(row => {
         const tr = document.createElement('tr');
         tr.className = 'border-b dark:border-slate-600';
@@ -71,12 +99,12 @@
         const td2 = document.createElement('td');
         const td3 = document.createElement('td');
         [td1, td2, td3].forEach(td => {
-          td.className = 'py-4 px-4';
+          td.className = 'py-4 px-4 whitespace-pre text-wrap';
         });
 
         td1.textContent = row['nom'] + " / " + row['titre'];
-        td2.textContent = row['arrangeur'];
-        td3.textContent = row['compositeur'];
+        td2.textContent = formatYoutubeTitle(youtubeTitleFormat, row);
+        td3.textContent = formatYoutubeDescription(youtubeDescriptionFormat, row);
 
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -84,6 +112,27 @@
 
         tableBody.appendChild(tr);
       });
+    }
+
+    /**
+     * Format the YouTube title using the provided format.
+     */
+    function formatYoutubeTitle(titleFormat, row) {
+      return titleFormat
+                .replace('{titre}', row['titre'])
+                .replace('{nom}', row['nom']);
+    }
+
+    /**
+     * Format the YouTube description using the provided format.
+     */
+    function formatYoutubeDescription(descriptionFormat, row) {
+      return descriptionFormat
+                .replace('{nom}', row['nom'])
+                .replace('{titre}', row['titre'])
+                .replace('{compositeur}', row['compositeur'])
+                .replace('{arrangeur}', row['arrangeur'])
+                .replace('{date}', row['date']);
     }
   </script>
 </head>
@@ -98,8 +147,10 @@
       <li>À l'aide du formulaire ci-bas, sélectionner le fichier <b>CVS</b>.</li>
       <li>Cliquer sur le bouton <b>Importer</b>.</li>
     </ul>
-    <hr class="mt-8" />
-    <div class="my-8">
+
+    <hr class="my-8" />
+
+    <div>
       <label for="file" class="block text-md text-purple-900 font-bold mb-2">Fichier CSV</label>
       <input type="file" id="file" class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
       <label for="youtube--title-format" class="block text-md text-purple-900 font-bold mt-4 mb-2">Format Titre YouTube</label>
@@ -115,22 +166,23 @@
 🎼 Titre de la pièce de musique interprétée: {titre}
 🎻 Compositeur: {compositeur}
 📝 Arrangeur: {arrangeur}
-🏠 École: {école}
+🏠 École: Melinotes, Longueuil
 📅 Date de l'enregistrement: {date}
 
-Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et à commenter pour partager vos réactions 😊
-      </textarea>
+Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et à commenter pour partager vos réactions 😊</textarea>
       <label class="block text-md text-slate-500 font-bold mt-4 mb-2">Légende</label>
       <button class="mt-4 transition bg-purple-900 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="handleFileImport()">Importer</button>
     </div>
 
-    <h1 class="text-6xl text-purple-900 py-8">Données</h1>
-    <table class="table-fixed text-left border dark:border-slate-600">
+    <hr class="my-8" />
+    
+    <h1 class="text-6xl text-purple-900 mb-6">Données</h1>
+    <table class="w-full table-fixed text-left border dark:border-slate-600">
       <thead>
-        <tr class="border-b dark:border-slate-600">
-          <th class="w-1/3 py-4 px-4">Élève / Pièce</th>
-          <th class="w-1/3 py-4 px-4">Titre YouTube</th>
-          <th class="w-1/3 py-4 px-4">Description YouTube</th>
+        <tr class="border-b dark:border-slate-600 text-purple-700 bg-purple-200">
+          <th class="w-1/4 py-4 px-4">Élève(S) / Pièce</th>
+          <th class="w-1/4 py-4 px-4">Titre YouTube</th>
+          <th class="w-1/2 py-4 px-4">Description YouTube</th>
         </tr>
       </thead>
       <tbody id="results">
