@@ -35,8 +35,6 @@
           const filteredResults = filterResults(results);
           const mappedResults = mapResults(filteredResults);
 
-          console.log(results);
-
           renderResults(mappedResults);
         }
       });
@@ -93,7 +91,7 @@
 
       results.forEach(row => {
         const tr = document.createElement('tr');
-        tr.className = 'border-b dark:border-slate-600';
+        tr.className = 'border-b dark:border-slate-600 even:bg-slate-100';
 
         const td1 = document.createElement('td');
         const td2 = document.createElement('td');
@@ -103,8 +101,8 @@
         });
 
         td1.textContent = row['nom'] + " / " + row['titre'];
-        td2.textContent = formatYoutubeTitle(youtubeTitleFormat, row);
-        td3.textContent = formatYoutubeDescription(youtubeDescriptionFormat, row);
+        td2.textContent = formatText(youtubeTitleFormat, row);
+        td3.textContent = formatText(youtubeDescriptionFormat, row);
 
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -115,40 +113,32 @@
     }
 
     /**
-     * Format the YouTube title using the provided format.
+     *  Format the provided text using the provided row data.
      */
-    function formatYoutubeTitle(titleFormat, row) {
-      return titleFormat
-                .replace('{titre}', row['titre'])
-                .replace('{nom}', row['nom']);
-    }
-
-    /**
-     * Format the YouTube description using the provided format.
-     */
-    function formatYoutubeDescription(descriptionFormat, row) {
-      return descriptionFormat
-                .replace('{nom}', row['nom'])
-                .replace('{titre}', row['titre'])
-                .replace('{compositeur}', row['compositeur'])
-                .replace('{arrangeur}', row['arrangeur'])
-                .replace('{date}', row['date']);
+    function formatText(text, row) {
+      return text
+                .replaceAll('{titre}', row['titre'])
+                .replaceAll('{nom}', row['nom'])
+                .replaceAll('{compositeur}', row['compositeur'])
+                .replaceAll('{arrangeur}', row['arrangeur'])
+                .replaceAll('{date}', row['date']);
     }
   </script>
 </head>
 <body class="bg-slate-50">
   <main class="container w-2/3 flex flex-col mx-auto pt-24 pb-10">
-    <h1 class="text-6xl text-purple-900 pb-8">Comment ça marche</h1>
+    <h1 class="text-6xl text-purple-900 pb-8">Comment ça marche?</h1>
     <ul class="list-disc text-xl text-slate-700 ml-7">
       <li>Dans <b>Notion</b>, cliquer sur le menu <b>[...]</b> en haut à droite de la page.</li>
       <li>Choisir <b>Exporter</b>.</li>
-      <li>Choisir <b>CSV</b>.</li>
-      <li>Enregistrer le fichier sur votre ordinateur.</li>
+      <li>Choisir <b>Markdown & CSV</b>.</li>
+      <li>Enregistrer le fichier <b>ZIP</b> sur votre ordinateur.</li>
+      <li>Décompresser le fichier <b>ZIP</b>.</li>
       <li>À l'aide du formulaire ci-bas, sélectionner le fichier <b>CVS</b>.</li>
       <li>Cliquer sur le bouton <b>Importer</b>.</li>
     </ul>
 
-    <hr class="my-8" />
+    <hr class="my-10" />
 
     <div>
       <label for="file" class="block text-md text-purple-900 font-bold mb-2">Fichier CSV</label>
@@ -162,16 +152,16 @@
       >
       <label for="youtube--description-format" class="block text-md text-purple-900 font-bold mt-4 mb-2">Format Description YouTube</label>
       <textarea id="youtube--description-format" rows="8" class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-🎹 Musicien(s): {nom}
+😎 Musicien(s): {nom}
 🎼 Titre de la pièce de musique interprétée: {titre}
-🎻 Compositeur: {compositeur}
+🎹 Compositeur: {compositeur}
 📝 Arrangeur: {arrangeur}
 🏠 École: Melinotes, Longueuil
 📅 Date de l'enregistrement: {date}
 
 Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et à commenter pour partager vos réactions 😊</textarea>
       <label class="block text-md text-slate-500 font-bold mt-4 mb-2">Légende</label>
-      <button class="mt-4 transition bg-purple-900 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="handleFileImport()">Importer</button>
+      <button class="my-4 transition bg-purple-900 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="handleFileImport()">Importer</button>
     </div>
 
     <hr class="my-8" />
@@ -180,7 +170,7 @@ Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et 
     <table class="w-full table-fixed text-left border dark:border-slate-600">
       <thead>
         <tr class="border-b dark:border-slate-600 text-purple-700 bg-purple-200">
-          <th class="w-1/4 py-4 px-4">Élève(S) / Pièce</th>
+          <th class="w-1/4 py-4 px-4">Élève(s) / Pièce</th>
           <th class="w-1/4 py-4 px-4">Titre YouTube</th>
           <th class="w-1/2 py-4 px-4">Description YouTube</th>
         </tr>
