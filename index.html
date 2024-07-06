@@ -133,19 +133,7 @@
 </head>
 <body class="bg-slate-50">
   <main class="container w-2/3 flex flex-col mx-auto pt-24 pb-10">
-    <h1 class="text-6xl text-purple-900 pb-8">Comment ça marche?</h1>
-    <ul class="list-disc text-xl text-slate-700 ml-7">
-      <li>Dans <b>Notion</b>, cliquer sur le menu <b>[...]</b> en haut à droite de la page.</li>
-      <li>Choisir <b>Exporter</b>.</li>
-      <li>Choisir <b>Markdown & CSV</b>.</li>
-      <li>Enregistrer le fichier <b>ZIP</b> sur votre ordinateur.</li>
-      <li>Décompresser le fichier <b>ZIP</b>.</li>
-      <li>À l'aide du formulaire ci-bas, sélectionner le fichier <b>CVS</b>.</li>
-      <li>Cliquer sur le bouton <b>Importer</b>.</li>
-    </ul>
-
-    <hr class="my-10" />
-
+    <h1 class="text-6xl text-purple-900 pb-8">Générer un titre et une description</h1>
     <div>
       <label for="file" class="block text-md text-purple-900 font-bold mb-2">Fichier CSV</label>
       <input type="file" id="file" class="w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -166,7 +154,7 @@
 📅 Date de l'enregistrement: {date}
 
 Nous espérons que vous apprécierez cette belle prestation! Pensez à liker et à commenter pour partager vos réactions 😇</textarea>
-      <label class="block text-md text-slate-500 font-bold mt-4 mb-2">Légende</label>
+      <label class="block text-md text-slate-500 font-bold mt-4 mb-2 hidden">Légende</label>
       <button class="my-4 transition bg-purple-900 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="handleFileImport()">Importer</button>
     </div>
 
